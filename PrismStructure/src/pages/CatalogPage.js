@@ -22,7 +22,12 @@ export class CatalogPage {
   
     async navigate() {
       await this.page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await this.searchInput.waitFor({ state: 'visible', timeout: 20000 });
+      try {
+        await this.searchInput.waitFor({ state: 'visible', timeout: 20000 });
+      } catch {
+        await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+        await this.searchInput.waitFor({ state: 'visible', timeout: 20000 });
+      }
     }
   
     /**
