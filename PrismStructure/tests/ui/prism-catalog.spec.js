@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { CatalogPage } from '../../src/pages/CatalogPage';
-import { LoginPage } from '../../src/pages/LoginPage';
 
 import { testConfig } from '../../config/testConfig.js';
 
@@ -16,13 +15,9 @@ test.describe('Catalog & Cart UI Suite', () => {
   });
 
   test('[@regression] Cart quantity update before checkout', async ({ page }) => {
-    const loginPage = new LoginPage(page);
     const catalogPage = new CatalogPage(page);
-    const { email, password } = testConfig.credentials;
     const { searchKeyword, cartQuantity } = testConfig.product;
 
-    await loginPage.navigate();
-    await loginPage.login(email, password);
     await catalogPage.searchProduct(searchKeyword);
     await catalogPage.selectFirstProduct();
     await catalogPage.setQuantityAndAddToCart(cartQuantity);

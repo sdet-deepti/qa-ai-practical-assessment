@@ -117,6 +117,14 @@ Prompts for POM construction, spec fixes, and failure analysis.
 
 ---
 
+## Entry 15 — CI: guest catalog + checkout-step login
+
+- **Prompt:** After login API wait, catalog search still timed out on CI only (guest catalog test passed).
+- **AI Response Summary:** Pre-login via `/auth/login` unreliable on GitHub runners; guest browse works; login at checkout step 2 matches real user flow.
+- **Debugging Outcome:** Removed pre-login from `prism-catalog` cart test and `prism-checkout` E2E; `CheckoutPage` waits on login API response at step 2. CI runs 11 passed + 1 skipped (registration).
+
+---
+
 ## Final execution status
 
 - **Command:** `npx playwright test --project=chromium` from `PrismStructure/`

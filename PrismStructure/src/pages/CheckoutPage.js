@@ -64,10 +64,19 @@ export class CheckoutPage {
       if (await this.emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
         const email = loginData?.email || testConfig.credentials.email;
         const password = loginData?.password || testConfig.credentials.password;
-  
+
         await this.emailInput.fill(email);
         await this.passwordInput.fill(password);
-        await this.loginButton.click();
+
+        await Promise.all([
+          this.page.waitForResponse(
+            (response) =>
+              response.url().includes('/users/login') &&
+              response.request().method() === 'POST',
+            { timeout: 30000 },
+          ),
+          this.loginButton.click(),
+        ]);
       }
   
       // Step 2 -> Step 3 transition
