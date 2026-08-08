@@ -1,0 +1,76 @@
+# ==========================================
+# Node.js Dependencies
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json.bak
+
+# ==========================================
+# Playwright & Testing Artifacts
+# ==========================================
+# Playwright report folders & test results
+PrismStructure/reports/html-report/
+PrismStructure/reports/test-results/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Execution evidence logs
+execution-evidence/*.log
+!execution-evidence/.gitkeep
+
+# Automated Screenshots and Videos
+*.png
+*.jpeg
+*.jpg
+*.webm
+*.mp4
+
+# ==========================================
+# Environment Variables & Secret Files
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ==========================================
+# Cursor AI / IDE / OS Specific Files
+# ==========================================
+# IDE settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Cursor specific cache (preserves .cursor/rules and .cursor/skills)
+.cursor/cache/
+.cursor/logs/
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==========================================
+# Temporary Files & Archives
+# ==========================================
+*.tmp
+*.bak
+*.swp
+*.zip
+*.tar.gz

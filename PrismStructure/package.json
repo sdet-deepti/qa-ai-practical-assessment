@@ -1,0 +1,23 @@
+{
+  "name": "prism-automation-framework",
+  "version": "1.0.0",
+  "description": "Playwright UI + API Test Automation Tier for PracticeSoftwareTesting",
+  "type": "module",
+  "scripts": {
+    "pretest": "node scripts/prepare-dirs.js",
+    "test": "playwright test",
+    "test:ci": "playwright test --project=chromium",
+    "test:ui": "playwright test tests/ui",
+    "test:ui:smoke": "playwright test tests/ui --grep @smoke",
+    "test:ui:regression": "playwright test tests/ui --grep @regression",
+    "test:api": "playwright test tests/api",
+    "test:api:smoke": "playwright test tests/api --grep @smoke",
+    "test:api:regression": "playwright test tests/api --grep @regression",
+    "test:evidence": "node scripts/run-with-log.js",
+    "report": "playwright show-report reports/html-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.0",
+    "@faker-js/faker": "^8.4.1"
+  }
+}
