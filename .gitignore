@@ -1,0 +1,24 @@
+# Dependencies & generated artifacts
+node_modules/
+PrismStructure/node_modules/
+reports/
+PrismStructure/reports/
+PrismStructure/playwright-report/
+PrismStructure/test-results/
+
+# Environment & logs
+.env
+.env.*
+*.log
+.DS_Store
+
+# Internal / not for submission
+cursor-implementation.md
+qa-ai-project-proposal.md
+test-prompts
+test-prompts/
+PrismStructure/scripts/probe-*.js
+
+# Extra prompt logs (5 required files in ai-prompts/ are committed)
+ai-prompts/Checkpoint*.md
+ai-prompts/login_flow.md
