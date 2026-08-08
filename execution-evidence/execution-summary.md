@@ -3,7 +3,8 @@
 **Run date:** August 8, 2026  
 **Command:** `npm run test:evidence` (from `PrismStructure/`)  
 **Browser:** chromium  
-**Result:** 12 passed, 0 failed
+**Local result:** 12 passed, 0 failed  
+**CI result (GitHub Actions `master`):** 11 passed, 1 skipped (registration smoke skipped on CI), 0 failed
 
 | Suite | Spec | Tests | Status |
 |-------|------|-------|--------|
