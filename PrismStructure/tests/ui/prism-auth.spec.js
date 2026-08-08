@@ -25,9 +25,10 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     // 2. Login
     await loginPage.login(newUser.email, newUser.password);
 
-    // 3. Verify Account Navigation State (Targeting exact user menu button)
+    // 3. Verify logged-in nav state (menu shows user name after session is established)
     const userNavMenu = page.locator('[data-test="nav-menu"]');
-    await expect(userNavMenu).toContainText(newUser.first_name);
+    await expect(userNavMenu).toBeVisible({ timeout: 20000 });
+    await expect(userNavMenu).toContainText(newUser.first_name, { timeout: 15000 });
   });
 
   test('[@regression] Negative Login - Invalid Password Validation', async ({ page }) => {

@@ -69,5 +69,6 @@ export class RegisterPage {
 
       // Submit
       await this.registerBtn.click();
+      await this.page.waitForURL(/\/auth\/login/, { timeout: 30000 });
     }
 }

@@ -12,9 +12,14 @@ export class LoginPage {
     }
   
     async login(email, password) {
-      await this.emailInput.waitFor({ state: 'visible', timeout: 10000 });
+      await this.emailInput.waitFor({ state: 'visible', timeout: 20000 });
       await this.emailInput.fill(email);
       await this.passwordInput.fill(password);
       await this.submitButton.click();
+      await this.page.waitForURL(
+        (url) => !url.pathname.includes('/auth/login'),
+        { timeout: 30000 },
+      );
+      await this.page.waitForLoadState('domcontentloaded');
     }
   }
