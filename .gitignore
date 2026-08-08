@@ -15,6 +15,7 @@ PrismStructure/test-results/
 # Internal / not for submission
 cursor-implementation.md
 qa-ai-project-proposal.md
+git-github-flow.md
 test-prompts
 test-prompts/
 PrismStructure/scripts/probe-*.js
@@ -22,3 +23,4 @@ PrismStructure/scripts/probe-*.js
 # Extra prompt logs (5 required files in ai-prompts/ are committed)
 ai-prompts/Checkpoint*.md
 ai-prompts/login_flow.md
+.pr-bodies/

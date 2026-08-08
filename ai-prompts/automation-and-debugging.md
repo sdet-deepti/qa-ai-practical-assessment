@@ -93,8 +93,33 @@ Prompts for POM construction, spec fixes, and failure analysis.
 
 ---
 
+## Entry 12 — CI login race (catalog/checkout timeouts)
+
+- **Prompt:** GitHub Actions fails on catalog/checkout with search input timeout; same tests pass locally.
+- **AI Response Summary:** `LoginPage.login()` clicked submit and returned immediately; CI continued before redirect/session finished.
+- **Debugging Outcome:** Wait for `POST /users/login` response (200), redirect off `/auth/login`, then `goto('/#/')` and wait for catalog search input — single click only.
+
+---
+
+## Entry 13 — CI negative login + registration
+
+- **Prompt:** After adding login redirect wait, negative login test timed out (invalid login stays on login page).
+- **AI Response Summary:** Use `expectSuccess: false` for negative path; skip live registration on `process.env.CI`.
+- **Debugging Outcome:** Negative test does not wait for redirect. Registration smoke skipped in CI; fixed demo user login covers pipeline auth.
+
+---
+
+## Entry 14 — CI `nav-menu` wait too strict
+
+- **Prompt:** CI logs showed redirect succeeded but `[data-test="nav-menu"]` not visible within 20s.
+- **AI Response Summary:** Nav renders slower on CI; catalog only needs home page + search box.
+- **Debugging Outcome:** Removed `nav-menu` wait from `LoginPage.login()`; wait for search input on `/#/` instead. `fullyParallel: false` on CI to reduce login hammering.
+
+---
+
 ## Final execution status
 
 - **Command:** `npx playwright test --project=chromium` from `PrismStructure/`
-- **Result:** 12 passed, 0 failed
+- **Local result:** 12 passed, 0 failed (registration smoke included)
+- **CI result:** 11 passed, 1 skipped (registration), 0 failed — after login stability fixes
 - **Report:** `PrismStructure/reports/html-report/index.html`
