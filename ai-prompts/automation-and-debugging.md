@@ -1,0 +1,100 @@
+# AI Prompts – Automation and Debugging
+
+Prompts for POM construction, spec fixes, and failure analysis.  
+**Implemented artifacts:** `PrismStructure/src/pages/`, `PrismStructure/tests/`, `playwright.config.js`.
+
+---
+
+## Entry 1 — POM locator strategy
+
+- **Prompt:** Refactor Page Objects to use `getByRole`, `getByTestId`, `getByLabel` instead of fragile XPath/CSS chains.
+- **AI Response Summary:** Suggested locator replacements per page.
+- **Debugging Outcome:** All UI specs use POM locators; no selectors in spec files. `.cursor/rules/prism-playwright.md` enforces this.
+
+---
+
+## Entry 2 — `expect` in Page Object (ReferenceError)
+
+- **Prompt:** Fix `ReferenceError: expect is not defined` in `CheckoutPage.js` without importing `@playwright/test` into POM.
+- **AI Response Summary:** Use `waitFor` instead of `expect` in page classes.
+- **Debugging Outcome:** Replaced `expect()` in POM with `locator.waitFor({ state: 'visible' })`.
+
+---
+
+## Entry 3 — Checkout step 2 → 3 transition
+
+- **Prompt:** Test hangs after login on checkout step 2 waiting for address fields.
+- **AI Response Summary:** Toolshop requires clicking `proceed-2` after login before step 3.
+- **Debugging Outcome:** Added explicit `proceed2.click()` after credential submit in `proceedThroughSteps()`.
+
+---
+
+## Entry 4 — Angular form validation (proceed-3 disabled)
+
+- **Prompt:** `[data-test="proceed-3"]` stays disabled after filling billing fields.
+- **AI Response Summary:** Dispatch `input`/`change`/`blur` events for Angular reactive forms; select country first.
+- **Debugging Outcome:** `fillAndTrigger()` helper + country-first selection + `waitForFunction` for enabled button.
+
+---
+
+## Entry 5 — Out-of-stock catalog freeze
+
+- **Prompt:** Quantity input disabled when product out of stock; test times out on `.clear()`.
+- **AI Response Summary:** Filter in-stock cards before selecting product.
+- **Debugging Outcome:** `CatalogPage.searchProduct()` fallback keyword; `selectFirstInStockProduct()` filters `.card:not(:has-text("Out of stock"))`.
+
+---
+
+## Entry 6 — Double-confirm invoice (UI business rule)
+
+- **Prompt:** Implement Toolshop rule: press Confirm **twice** to generate invoice ID.
+- **AI Response Summary:** Early draft used single `finishButton.click()` aliased as `confirmInvoiceWithDoubleClick()`.
+- **Debugging Outcome:** **Fixed:** two explicit clicks on `[data-test="finish"]` with scroll and visibility wait between clicks in `confirmInvoiceWithDoubleClick()`.
+
+---
+
+## Entry 7 — My Invoices dropdown navigation
+
+- **Prompt:** `getByRole('link', { name: /my invoices/i })` not visible — link inside user menu.
+- **AI Response Summary:** Open `[data-test="nav-menu"]` before clicking My Invoices.
+- **Debugging Outcome:** `InvoicePage.navigateToMyInvoices()` opens menu first; fallback `page.goto('/#/account/invoices')`.
+
+---
+
+## Entry 8 — API cart add-item 404
+
+- **Prompt:** `POST /carts/{id}/items` returns 404 Resource not found on live Toolshop API.
+- **AI Response Summary:** Suggested alternate endpoints; none available on current API version.
+- **Debugging Outcome:** Removed `addItemToCart` from automated path. API suite tests: login → create cart → **get cart** → invoice with TG billing. Manual TC_API_004 retains add-item intent.
+
+---
+
+## Entry 9 — API invoice billing 422
+
+- **Prompt:** Invoice POST returns 422 billing_country does not match address.
+- **AI Response Summary:** Use assessment example TG/Hesselbury payload exactly.
+- **Debugging Outcome:** `TestDataFactory.generateInvoiceBillingDetails()` locked to TG/1234AA; 201 Created confirmed.
+
+---
+
+## Entry 10 — Parallel run checkout timeout
+
+- **Prompt:** Full suite fails checkout at `proceed-3` when 10 workers run concurrently against SUT.
+- **AI Response Summary:** Reduce workers or isolate checkout spec.
+- **Debugging Outcome:** `workers: 2` in `playwright.config.js`; checkout passes in full suite (12/12).
+
+---
+
+## Entry 11 — Reports written to wrong folder
+
+- **Prompt:** HTML report at repo root `reports/` shows "No tests found" when opening wrong path.
+- **AI Response Summary:** Playwright cwd affects output paths when using `--config` from wrong directory.
+- **Debugging Outcome:** Documented: always `cd PrismStructure` before `npx playwright test`. Reports only in `PrismStructure/reports/html-report/`. Root `reports/` removed.
+
+---
+
+## Final execution status
+
+- **Command:** `npx playwright test --project=chromium` from `PrismStructure/`
+- **Result:** 12 passed, 0 failed
+- **Report:** `PrismStructure/reports/html-report/index.html`
