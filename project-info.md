@@ -297,7 +297,7 @@ Rule: **one focused task per chat** → summarize to `ai-prompts/` → fresh cha
 
 - [x] Public GitHub repo pushed with iterative commit history  
 - [x] Public Repo URL added above  
-- [x] GitHub Actions CI on `master` (Playwright pass/fail + report artifacts)
-- [ ] `readme.md` + `ai-prompts/` + `FunctionalTestCase.csv` in repo  
+- [x] GitHub Actions CI on `master` (Playwright pass/fail + report artifacts; login stability fixes in PR #12+)
+- [x] `readme.md` + `ai-prompts/` + `FunctionalTestCase.csv` in repo  
 - [ ] This `project-info.md` exported to Google Doc for Part A submission  
 - [ ] HTML report screenshot attached to GDoc or evidence folder (optional)

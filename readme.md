@@ -4,6 +4,43 @@
 
 Playwright automation for [PracticeSoftwareTesting Toolshop](https://practicesoftwaretesting.com/).
 
+---
+
+## Project overview
+
+Work was delivered in **nine phases**, each merged to `master` via a pull request (readme → structure → planning → manual tests → UI → API → debugging → docs → CI).
+
+### Phase delivery (high level)
+
+```mermaid
+flowchart LR
+  P1["1 · README\n& setup"]
+  P2["2 · Structure\n& tooling"]
+  P3["3 · Requirements\n& planning"]
+  P4["4 · Manual\ntest cases"]
+  P5["5 · UI\nautomation"]
+  P6["6 · API\nautomation"]
+  P7["7 · Debugging\n& fixes"]
+  P8["8 · Docs &\nevidence"]
+  P9["9 · GitHub\nActions CI"]
+
+  P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8 --> P9
+```
+
+| Phase | Deliverable | Key paths |
+|-------|-------------|-----------|
+| 1 | Run guide | `readme.md` |
+| 2 | Tooling & layout | `.cursor/rules/`, `.gitignore`, `execution-evidence/` |
+| 3 | Requirements | `ai-prompts/requirements-and-planning.md` |
+| 4 | Manual tests | `FunctionalTestCase.csv`, `ai-prompts/test-design.md` |
+| 5 | UI suite | `PrismStructure/src/pages/`, `tests/ui/` |
+| 6 | API suite | `PrismStructure/src/api/`, `tests/api/`, `testConfig.js` |
+| 7 | Stabilization | `ai-prompts/automation-and-debugging.md` |
+| 8 | Submission docs | `project-info.md`, `execution-evidence/` |
+| 9 | CI pipeline | `.github/workflows/playwright.yml` |
+
+---
+
 ## Setup
 
 ```bash
@@ -73,7 +110,29 @@ Pushes and pull requests to `master` run the full Playwright suite on Ubuntu (pu
 
 - Workflow: `.github/workflows/playwright.yml`
 - Command: `npm run test:ci` from `PrismStructure/`
-- Artifacts: HTML report and failure traces (download from the Actions tab)
+- Artifacts: HTML report, junit XML, and failure traces (Actions tab → run → Artifacts)
+
+### Local vs CI
+
+| Topic | Local | CI (`ubuntu-latest`) |
+|-------|--------|-------------------------|
+| SUT | Home network → Toolshop | GitHub datacenter IP → same live site |
+| Workers | `2` (parallel) | `1` (sequential) |
+| Retries | `0` | `1` on failure |
+| Registration smoke | Runs (live register + login) | **Skipped** — flaky on shared runners |
+| Login wait | API `POST /users/login` 200 + catalog search visible | Same (stable for checkout/catalog) |
+
+CI failures were traced to **login timing** (click returned before session established) and **waiting on `nav-menu`** instead of catalog-ready signals. See `ai-prompts/automation-and-debugging.md` entries 12–14.
+
+```mermaid
+flowchart LR
+  PUSH["push / PR\nto master"] --> GHA["ubuntu-latest\nGitHub Actions"]
+  GHA --> INSTALL["npm ci + Playwright\nChromium"]
+  INSTALL --> RUN["npm run test:ci"]
+  RUN --> SUT["Toolshop UI + API"]
+  RUN --> OUT["pass / fail"]
+  RUN --> ART["HTML report +\njunit artifacts"]
+```
 
 ---
 
@@ -112,23 +171,59 @@ npx playwright test --project=chromium
 
 ---
 
-## Architecture Flow
+## Architecture (full flow)
 
-```text
-tests/ui/*.spec.js          tests/api/*.spec.js
-        │                           │
-        ▼                           ▼
-   src/pages/ (POM)            src/api/ (controllers)
-   LoginPage, CatalogPage     AuthApi, CartApi, InvoiceApi
-   CheckoutPage, InvoicePage
-        │                           │
-        └───────────┬───────────────┘
-                    ▼
-         config/testConfig.js  ← credentials, product, API URL
-                    │
-         src/utils/TestDataFactory.js  ← dynamic users + billing payloads
-                    ▼
-         PracticeSoftwareTesting (UI + API)
+End-to-end view: specs, automation layer, external application, reports, evidence, and CI.
+
+```mermaid
+flowchart TB
+  subgraph runner["Local machine or GitHub Actions"]
+    subgraph tests["Playwright specs — PrismStructure/tests/"]
+      UI["tests/ui/\nhealthcheck, auth,\ncatalog, checkout"]
+      API["tests/api/\nprism-api.spec.js"]
+    end
+
+    subgraph automation["Automation layer — PrismStructure/src/"]
+      POM["pages/\nLogin, Catalog,\nCheckout, Invoice"]
+      CTRL["api/\nAuth, Cart, Invoice"]
+      CFG["config/testConfig.js\ncredentials · product · API URL"]
+      TDF["utils/TestDataFactory.js\ndynamic users · billing"]
+    end
+
+    PW["Playwright + Chromium\nplaywright.config.js"]
+    REP["reports/\nHTML · JSON · junit"]
+  end
+
+  subgraph sut["Application under test"]
+    WEB["practicesoftwaretesting.com\n(UI)"]
+    APIHOST["api.practicesoftwaretesting.com\n(API)"]
+  end
+
+  subgraph deliverables["Evidence & submission"]
+    HTML["reports/html-report/"]
+    JSON["reports/test-results/results.json"]
+    EVID["execution-evidence/\nterminal log · summary"]
+    DOCS["project-info.md · readme.md\nFunctionalTestCase.csv"]
+  end
+
+  subgraph ci["CI — .github/workflows/"]
+    WF["playwright.yml\non push/PR to master"]
+  end
+
+  UI --> POM
+  API --> CTRL
+  POM --> CFG
+  CTRL --> CFG
+  CTRL --> TDF
+  POM --> PW
+  CTRL --> PW
+  PW --> WEB
+  PW --> APIHOST
+  PW --> REP
+  REP --> HTML
+  REP --> JSON
+  WF --> PW
+  PW -.-> EVID
 ```
 
 **UI flow:** Spec → Page Object → `testConfig` (login/product) → Toolshop UI  
