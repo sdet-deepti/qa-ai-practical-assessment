@@ -21,7 +21,8 @@ export class CatalogPage {
     }
   
     async navigate() {
-      await this.page.goto('/#/', { waitUntil: 'domcontentloaded' });
+      await this.page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await this.searchInput.waitFor({ state: 'visible', timeout: 20000 });
     }
   
     /**
@@ -35,7 +36,6 @@ export class CatalogPage {
     fallbackKeyword = testConfig.product.searchFallback,
   ) {
       await this.navigate();
-      await this.searchInput.waitFor({ state: 'visible', timeout: 15000 });
       await this.searchInput.fill(keyword);
       await this.searchButton.click();
   
