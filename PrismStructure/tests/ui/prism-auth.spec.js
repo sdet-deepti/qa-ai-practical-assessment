@@ -52,6 +52,7 @@ test.describe('Authentication & User Lifecycle Suite', () => {
       await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
       await profilePage.navigate();
     }
+    await profilePage.expectEmailVisible(email);
     await profilePage.expectNameVisible('Jane');
   });
 
