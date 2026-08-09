@@ -6,7 +6,8 @@ import { LoginPage } from '../../src/pages/LoginPage';
 import { ProfilePage } from '../../src/pages/ProfilePage';
 import { TestDataFactory } from '../../src/utils/TestDataFactory';
 import { testConfig } from '../../config/testConfig.js';
-import { authenticateBrowser } from '../../src/utils/browserAuth.js';
+import { authenticateBrowser, openProfilePage } from '../../src/utils/browserAuth.js';
+import { isCiEnv } from '../../src/utils/ciEnv.js';
 
 test.describe('Authentication & User Lifecycle Suite', () => {
   test.describe.configure({ mode: 'serial' });
@@ -22,7 +23,7 @@ test.describe('Authentication & User Lifecycle Suite', () => {
 
   test('[@smoke] User Registration & Subsequent Login Validation', async ({ page }) => {
     test.skip(
-      !!process.env.CI,
+      isCiEnv,
       'Live registration is flaky on shared CI runners against Toolshop',
     );
 
@@ -41,28 +42,29 @@ test.describe('Authentication & User Lifecycle Suite', () => {
 
   test('[@smoke] Profile page shows configured user name after login', async ({ page, request }) => {
     const { email, password } = testConfig.credentials;
-    if (process.env.CI) {
+    if (isCiEnv) {
       await authenticateBrowser(page, request);
+      await openProfilePage(page);
     } else {
       await loginPage.navigate();
       await loginPage.login(email, password);
+      await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
+      await profilePage.navigate();
     }
-    await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
-    await profilePage.navigate();
     await profilePage.expectNameVisible('Jane');
   });
 
   test('[@regression] Logout clears session and blocks profile access', async ({ page, request }) => {
     const { email, password } = testConfig.credentials;
-    if (process.env.CI) {
+    if (isCiEnv) {
       await authenticateBrowser(page, request);
     } else {
       await loginPage.navigate();
       await loginPage.login(email, password);
+      await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
     }
-    await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
     await loginPage.logout();
     await page.goto('/#/account/profile', { waitUntil: 'domcontentloaded', timeout: 20000 });
     await expect(loginPage.userMenuToggle).not.toBeVisible({ timeout: 15000 });
