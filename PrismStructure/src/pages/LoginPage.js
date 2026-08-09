@@ -37,17 +37,24 @@ export class LoginPage {
       return;
     }
 
-    const [loginResponse] = await Promise.all([
-      this.page.waitForResponse(
-        (response) =>
-          response.url().includes('/users/login') &&
-          response.request().method() === 'POST',
-        { timeout: 30000 },
-      ),
-      this.submitButton.click(),
-    ]);
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.url().includes('/users/login') &&
+        response.request().method() === 'POST',
+      { timeout: 30000 },
+    );
+    await this.submitButton.click();
 
-    if (loginResponse.status() !== 200) {
+    let loginResponse;
+    try {
+      loginResponse = await responsePromise;
+    } catch {
+      if (this.page.url().includes('/auth/login')) {
+        throw new Error('Login timed out: no API response and still on login page');
+      }
+    }
+
+    if (loginResponse && loginResponse.status() !== 200) {
       throw new Error(`Login failed with HTTP ${loginResponse.status()}`);
     }
 
@@ -57,7 +64,13 @@ export class LoginPage {
     );
 
     await this.page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await this.searchInput.waitFor({ state: 'visible', timeout: 30000 });
+    const catalogReady = this.searchInput.or(this.userMenuToggle);
+    try {
+      await catalogReady.first().waitFor({ state: 'visible', timeout: 20000 });
+    } catch {
+      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+      await catalogReady.first().waitFor({ state: 'visible', timeout: 20000 });
+    }
   }
 
   async logout() {

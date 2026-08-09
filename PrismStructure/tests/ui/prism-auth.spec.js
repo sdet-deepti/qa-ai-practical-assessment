@@ -8,6 +8,7 @@ import { TestDataFactory } from '../../src/utils/TestDataFactory';
 import { testConfig } from '../../config/testConfig.js';
 
 test.describe('Authentication & User Lifecycle Suite', () => {
+  test.describe.configure({ mode: 'serial' });
   let registerPage;
   let loginPage;
   let profilePage;

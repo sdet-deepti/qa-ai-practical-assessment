@@ -72,9 +72,13 @@ export class CatalogPage {
   
       const productLink = inStockCard.locator('a, [data-test="product-name"], img').first();
       await productLink.click();
-  
-      // Wait for detail view element to be ready
-      await this.addToCartButton.waitFor({ state: 'visible', timeout: 15000 });
+
+      try {
+        await this.addToCartButton.waitFor({ state: 'visible', timeout: 15000 });
+      } catch {
+        await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+        await this.addToCartButton.waitFor({ state: 'visible', timeout: 20000 });
+      }
     }
   
     async setQuantityAndAddToCart(quantity = 1) {
