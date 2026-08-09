@@ -10,6 +10,7 @@ PrismStructure/test-results/
 .env
 .env.*
 *.log
+!execution-evidence/terminal-execution.log
 .DS_Store
 
 # Internal / not for submission

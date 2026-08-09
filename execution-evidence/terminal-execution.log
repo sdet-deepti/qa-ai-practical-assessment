@@ -1,0 +1,22 @@
+
+Running 17 tests using 1 worker
+
+  ok  1 [chromium] › tests\api\prism-api.spec.js:27:3 › Prism API Automation Tier › [@smoke] Login and obtain bearer token (30ms)
+  ok  2 [chromium] › tests\api\prism-api.spec.js:31:3 › Prism API Automation Tier › [@smoke] GET /users/me returns authenticated user email (630ms)
+  ok  3 [chromium] › tests\api\prism-api.spec.js:37:3 › Prism API Automation Tier › [@smoke] Create new cart session (576ms)
+  ok  4 [chromium] › tests\api\prism-api.spec.js:42:3 › Prism API Automation Tier › [@smoke] Retrieve cart by id with cart_items array (1.1s)
+  ok  5 [chromium] › tests\api\prism-api.spec.js:49:3 › Prism API Automation Tier › [@smoke] [@regression] E2E API: login, cart, COD invoice with invoice_number (1.3s)
+  ok  6 [chromium] › tests\api\prism-api.spec.js:57:3 › Prism API Automation Tier › [@regression] Invalid login returns 401 (609ms)
+  ok  7 [chromium] › tests\api\prism-api.spec.js:62:3 › Prism API Automation Tier › [@regression] Invalid bearer token returns 401 on /users/me (607ms)
+  ok  8 [chromium] › tests\api\prism-api.spec.js:67:3 › Prism API Automation Tier › [@regression] Add item to cart returns 404 on live API (documented SUT limit) (1.2s)
+  ok  9 [chromium] › tests\api\prism-api.spec.js:74:3 › Prism API Automation Tier › [@regression] Invoice without cart_id returns 422 (529ms)
+  ok 10 [chromium] › tests\ui\healthcheck.spec.js:4:3 › Health Check Tier @smoke › Verify PracticeSoftwareTesting SUT Homepage (3.8s)
+  ok 11 [chromium] › tests\ui\prism-auth.spec.js:24:3 › Authentication & User Lifecycle Suite › [@smoke] User Registration & Subsequent Login Validation (12.0s)
+  ok 12 [chromium] › tests\ui\prism-auth.spec.js:43:3 › Authentication & User Lifecycle Suite › [@smoke] Profile page shows configured user name after login (10.4s)
+  ok 13 [chromium] › tests\ui\prism-auth.spec.js:59:3 › Authentication & User Lifecycle Suite › [@regression] Logout clears session and blocks profile access (7.8s)
+  ok 14 [chromium] › tests\ui\prism-auth.spec.js:74:3 › Authentication & User Lifecycle Suite › [@regression] Negative Login - Invalid Password Validation (4.8s)
+  ok 15 [chromium] › tests\ui\prism-catalog.spec.js:7:3 › Catalog & Cart UI Suite › [@regression] Catalog search filters product results (4.5s)
+  ok 16 [chromium] › tests\ui\prism-catalog.spec.js:17:3 › Catalog & Cart UI Suite › [@regression] Cart quantity update before checkout (9.9s)
+  ok 17 [chromium] › tests\ui\prism-checkout.spec.js:18:3 › Prism UI End-to-End Automation Suite (Dynamic Data) › E2E COD Checkout Flow & Invoice Verification @smoke @regression (16.2s)
+
+  17 passed (1.4m)

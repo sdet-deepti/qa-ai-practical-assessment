@@ -247,12 +247,13 @@ Full command list: `readme.md` in repo root.
 
 | Artifact | Location |
 |----------|----------|
-| HTML report (12 passed) | `PrismStructure/reports/html-report/index.html` |
-| JSON results | `PrismStructure/reports/test-results/results.json` |
+| HTML report (17 passed) | `PrismStructure/reports/html-report/index.html` (generated locally; not committed) |
+| JSON results | `PrismStructure/reports/test-results/results.json` (generated locally) |
 | Terminal log | `execution-evidence/terminal-execution.log` |
 | Run summary | `execution-evidence/execution-summary.md` |
+| Report screenshot | `execution-evidence/html-report-passing.png` |
 
-**Last verified run:** 12 passed, 0 failed, chromium, from `PrismStructure/`.
+**Last verified run:** 17 passed locally, 16 passed + 1 skipped on CI (registration skipped), chromium, from `PrismStructure/`.
 
 > Reports are generated inside `PrismStructure/reports/` only. There is no `reports/` folder at the repo root.
 

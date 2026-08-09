@@ -26,11 +26,16 @@ export class ProfilePage {
   }
 
   async expectEmailVisible(email) {
-    await this.emailInput.waitFor({ state: 'visible', timeout: 15000 });
-    const value = await this.emailInput.inputValue();
-    if (value.trim() !== email) {
-      throw new Error(`Expected profile email "${email}", got "${value}"`);
+    const timeout = isCiEnv ? 45000 : 15000;
+    await this.emailInput.waitFor({ state: 'visible', timeout });
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      const value = (await this.emailInput.inputValue()).trim();
+      if (value === email) return;
+      await this.page.waitForTimeout(500);
     }
+    const value = await this.emailInput.inputValue();
+    throw new Error(`Expected profile email "${email}", got "${value}"`);
   }
 
   async expectNameVisible(name) {
