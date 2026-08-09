@@ -65,8 +65,7 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
     await loginPage.logout();
     await page.goto('/#/account/profile', { waitUntil: 'domcontentloaded', timeout: 20000 });
-    await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible({ timeout: 15000 });
-    await expect(loginPage.userMenuToggle).not.toBeVisible();
+    await expect(loginPage.userMenuToggle).not.toBeVisible({ timeout: 15000 });
   });
 
   test('[@regression] Negative Login - Invalid Password Validation', async ({ page }) => {

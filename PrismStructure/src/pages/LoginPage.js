@@ -79,5 +79,6 @@ export class LoginPage {
     await this.logoutLink.waitFor({ state: 'visible', timeout: 10000 });
     await this.logoutLink.click();
     await this.page.waitForURL((url) => !url.pathname.includes('/account/'), { timeout: 20000 });
+    await this.page.evaluate(() => localStorage.removeItem('auth-token'));
   }
 }

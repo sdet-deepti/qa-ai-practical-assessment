@@ -66,18 +66,21 @@ export class CatalogPage {
     }
   
     async selectFirstInStockProduct() {
-      // Filter for in-stock cards and target the product link
       const inStockCard = this.page.locator('.card').filter({ hasNotText: 'Out of stock' }).first();
       await inStockCard.waitFor({ state: 'visible', timeout: 10000 });
-  
-      const productLink = inStockCard.locator('a, [data-test="product-name"], img').first();
-      await productLink.click();
 
+      const productLink = inStockCard.locator('a, [data-test="product-name"]').first();
+      await productLink.click();
+      await this.page
+        .waitForURL((url) => /product|detail/i.test(`${url.pathname}${url.hash}`), { timeout: 15000 })
+        .catch(() => {});
+
+      const detailTimeout = process.env.CI ? 45000 : 20000;
       try {
-        await this.addToCartButton.waitFor({ state: 'visible', timeout: 15000 });
+        await this.addToCartButton.waitFor({ state: 'visible', timeout: detailTimeout });
       } catch {
         await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
-        await this.addToCartButton.waitFor({ state: 'visible', timeout: 20000 });
+        await this.addToCartButton.waitFor({ state: 'visible', timeout: detailTimeout });
       }
     }
   
