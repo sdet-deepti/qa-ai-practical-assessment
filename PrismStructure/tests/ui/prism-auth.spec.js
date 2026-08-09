@@ -6,7 +6,7 @@ import { LoginPage } from '../../src/pages/LoginPage';
 import { ProfilePage } from '../../src/pages/ProfilePage';
 import { TestDataFactory } from '../../src/utils/TestDataFactory';
 import { testConfig } from '../../config/testConfig.js';
-import { authenticateBrowser, openProfilePage } from '../../src/utils/browserAuth.js';
+import { injectBrowserAuthToken, authenticateBrowser, openProfilePage } from '../../src/utils/browserAuth.js';
 import { isCiEnv } from '../../src/utils/ciEnv.js';
 
 test.describe('Authentication & User Lifecycle Suite', () => {
@@ -43,7 +43,7 @@ test.describe('Authentication & User Lifecycle Suite', () => {
   test('[@smoke] Profile page shows configured user name after login', async ({ page, request }) => {
     const { email, password } = testConfig.credentials;
     if (isCiEnv) {
-      await authenticateBrowser(page, request);
+      await injectBrowserAuthToken(page, request);
       await openProfilePage(page);
     } else {
       await loginPage.navigate();
