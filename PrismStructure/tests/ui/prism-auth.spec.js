@@ -6,6 +6,7 @@ import { LoginPage } from '../../src/pages/LoginPage';
 import { ProfilePage } from '../../src/pages/ProfilePage';
 import { TestDataFactory } from '../../src/utils/TestDataFactory';
 import { testConfig } from '../../config/testConfig.js';
+import { authenticateBrowser } from '../../src/utils/browserAuth.js';
 
 test.describe('Authentication & User Lifecycle Suite', () => {
   test.describe.configure({ mode: 'serial' });
@@ -38,20 +39,28 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     await expect(userNavMenu).toContainText(newUser.first_name, { timeout: 15000 });
   });
 
-  test('[@smoke] Profile page shows configured user name after login', async ({ page }) => {
+  test('[@smoke] Profile page shows configured user name after login', async ({ page, request }) => {
     const { email, password } = testConfig.credentials;
-    await loginPage.navigate();
-    await loginPage.login(email, password);
+    if (process.env.CI) {
+      await authenticateBrowser(page, request);
+    } else {
+      await loginPage.navigate();
+      await loginPage.login(email, password);
+    }
     await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
     await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
     await profilePage.navigate();
     await profilePage.expectNameVisible('Jane');
   });
 
-  test('[@regression] Logout clears session and blocks profile access', async ({ page }) => {
+  test('[@regression] Logout clears session and blocks profile access', async ({ page, request }) => {
     const { email, password } = testConfig.credentials;
-    await loginPage.navigate();
-    await loginPage.login(email, password);
+    if (process.env.CI) {
+      await authenticateBrowser(page, request);
+    } else {
+      await loginPage.navigate();
+      await loginPage.login(email, password);
+    }
     await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
     await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
     await loginPage.logout();
