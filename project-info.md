@@ -43,17 +43,17 @@ AI extracted AC1 (register/login/profile) and AC2 (catalog → cart → COD → 
 
 | Tier | @Smoke | @Regression |
 |------|--------|-------------|
-| UI | Register+login, homepage, E2E checkout | Negative login, catalog filter, cart quantity |
-| API | Login token, create cart, get cart, E2E invoice | Invalid login 401, invoice without cart_id 422 |
-| Manual | TC_UI_001–004, TC_API_001–004 | TC_UI_005–006, TC_API_005–006 |
+| UI | Register+login, profile, homepage, E2E checkout | Negative login, logout, catalog filter, cart quantity, invoice format |
+| API | Login token, `/users/me`, create cart, get cart, E2E invoice | Invalid login 401, invalid token 401, add-item 404, invoice without cart_id 422 |
+| Manual | TC_UI_001–004, TC_UI_007, TC_API_001–004, TC_API_008 | TC_UI_005–012, TC_API_005–007 |
 
 ### 4. How you use AI for manual test case design
 
-Iterative prompts produced `FunctionalTestCase.csv` (6 UI + 6 API). Replaced generic AI cases with Toolshop-specific AC-mapped scenarios, positive/negative types, and @Smoke/@Regression tags.
+Iterative prompts produced `FunctionalTestCase.csv` (**20 rows**: 12 UI + 8 API). Replaced generic AI cases with Toolshop-specific AC-mapped scenarios including profile, logout, invoice format, password boundaries, and API token/cart depth.
 
 ### 5. How you use AI for automation design
 
-- **UI:** Page Objects in `PrismStructure/src/pages/` (Login, Register, Catalog, Checkout, Invoice)  
+- **UI:** Page Objects in `PrismStructure/src/pages/` (Login, Register, Catalog, Checkout, Invoice, **Profile**)  
 - **API:** Controllers in `src/api/` (Auth, Cart, Invoice)  
 - **Config:** `config/testConfig.js` — credentials, product id, quantity, search keyword  
 - **Utils:** `TestDataFactory.js` — dynamic registration users and invoice billing payloads  
@@ -132,12 +132,20 @@ Live API supports cart create and invoice with TG billing payload. `POST /carts/
 | TC_UI_004 | Catalog | Search and add to cart | Positive | @Smoke |
 | TC_UI_005 | Checkout | COD + double-confirm | Positive | @Regression |
 | TC_UI_006 | Invoice | Verify My Invoices | Positive | @Regression |
+| TC_UI_007 | Profile | Profile shows name and email | Positive | @Smoke |
+| TC_UI_008 | Authentication | Logout clears session | Positive | @Regression |
+| TC_UI_009 | Invoice | Invoice number format INV-* | Positive | @Regression |
+| TC_UI_010 | Registration | Password below minimum length | Negative | @Regression |
+| TC_UI_011 | Registration | Password complexity rejected | Negative | @Regression |
+| TC_UI_012 | Catalog | Invalid quantity rejected | Negative | @Regression |
 | TC_API_001 | Auth | Login → bearer token | Positive | @Smoke |
 | TC_API_002 | Auth | Invalid login → 401 | Negative | @Smoke |
 | TC_API_003 | Cart | Create cart | Positive | @Smoke |
-| TC_API_004 | Cart | Add item to cart | Positive | @Smoke |
+| TC_API_004 | Cart | Add item to cart (live 404) | Positive | @Smoke |
 | TC_API_005 | Invoice | COD invoice + billing | Positive | @Regression |
-| TC_API_006 | Invoice | Missing cart_id → 400/422 | Negative | @Regression |
+| TC_API_006 | Invoice | Missing cart_id → 422 | Negative | @Regression |
+| TC_API_007 | Auth | Invalid bearer token → 401 | Negative | @Regression |
+| TC_API_008 | Cart | GET cart returns cart_items | Positive | @Smoke |
 
 Full steps and expected results: `FunctionalTestCase.csv` in repo root.
 
@@ -150,17 +158,17 @@ Full steps and expected results: `FunctionalTestCase.csv` in repo root.
 | Spec | Tests | Tags |
 |------|-------|------|
 | `healthcheck.spec.js` | Homepage title | @smoke |
-| `prism-auth.spec.js` | Register+login; negative login | @smoke, @regression |
+| `prism-auth.spec.js` | Register+login; profile; logout; negative login | @smoke, @regression |
 | `prism-catalog.spec.js` | Search filter; cart quantity | @regression |
-| `prism-checkout.spec.js` | E2E COD checkout + invoice | @smoke @regression |
+| `prism-checkout.spec.js` | E2E COD checkout + invoice format | @smoke @regression |
 
 ### API specs (`PrismStructure/tests/api/`)
 
 | Spec | Tests | Tags |
 |------|-------|------|
-| `prism-api.spec.js` | Login token; create cart; get cart; E2E invoice; 401; 422 | @smoke, @regression |
+| `prism-api.spec.js` | Login token; `/users/me`; create cart; get cart; E2E invoice; 401 login; 401 token; add-item 404; 422 invoice | @smoke, @regression |
 
-**Total automated:** 12 tests (6 UI + 6 API) — all **Passed**.
+**Total automated:** **17 tests** (8 UI + 9 API) — all **Passed** locally; **16 passed + 1 skipped** on CI (registration skipped).
 
 ---
 
@@ -169,16 +177,21 @@ Full steps and expected results: `FunctionalTestCase.csv` in repo root.
 | AC | Manual Case | Automated Spec |
 |----|-------------|----------------|
 | AC1 UI Register+Login | TC_UI_001, TC_UI_002 | `prism-auth.spec.js` [@smoke] |
+| AC1 UI Profile | TC_UI_007 | `prism-auth.spec.js` [@smoke] |
+| AC1 UI Logout | TC_UI_008 | `prism-auth.spec.js` [@regression] |
 | AC1 UI Invalid login | TC_UI_003 | `prism-auth.spec.js` [@regression] |
-| AC2 UI Catalog+Cart | TC_UI_004 | `prism-catalog.spec.js`, `prism-checkout.spec.js` |
+| AC2 UI Catalog+Cart | TC_UI_004, TC_UI_012 | `prism-catalog.spec.js`, `prism-checkout.spec.js` |
 | AC2 UI COD + double-confirm | TC_UI_005 | `prism-checkout.spec.js` |
-| AC2 UI My Invoices | TC_UI_006 | `prism-checkout.spec.js` |
+| AC2 UI My Invoices + format | TC_UI_006, TC_UI_009 | `prism-checkout.spec.js` |
 | API Login/token | TC_API_001 | `prism-api.spec.js` [@smoke] |
+| API Current user | TC_API_001 | `prism-api.spec.js` [@smoke] |
 | API Invalid login | TC_API_002 | `prism-api.spec.js` [@regression] |
 | API Create cart | TC_API_003 | `prism-api.spec.js` [@smoke] |
-| API Get cart | TC_API_004 | `prism-api.spec.js` [@smoke] |
+| API Get cart | TC_API_004, TC_API_008 | `prism-api.spec.js` [@smoke] |
+| API Add item (404) | TC_API_004 | `prism-api.spec.js` [@regression] |
 | API COD invoice | TC_API_005 | `prism-api.spec.js` [@smoke @regression] |
 | API Bad invoice | TC_API_006 | `prism-api.spec.js` [@regression] |
+| API Invalid token | TC_API_007 | `prism-api.spec.js` [@regression] |
 
 ---
 

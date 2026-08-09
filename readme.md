@@ -244,6 +244,7 @@ Per the assessment deliverable, execution reports live **inside `PrismStructure/
 | JSON results | `PrismStructure/reports/test-results/results.json` |
 | Terminal log | `execution-evidence/terminal-execution.log` |
 | Run summary | `execution-evidence/execution-summary.md` |
+| HTML report screenshot | `execution-evidence/html-report-passing.png` |
 
 ```bash
 cd PrismStructure

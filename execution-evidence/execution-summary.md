@@ -1,7 +1,7 @@
 # Execution Summary — QA AI Practical Assessment
 
-**Assessment window:** August 5–9, 2026  
-**Last local run:** August 9, 2026  
+**Assessment window:** August 5–10, 2026  
+**Last local run:** August 10, 2026  
 **Command:** `npx playwright test --project=chromium` (from `PrismStructure/`)  
 **Browser:** chromium  
 
@@ -11,7 +11,7 @@
 | **Failed** | 0 |
 | **Skipped** | 0 (registration smoke runs locally; skipped on CI) |
 
-**CI note:** Registration smoke uses `test.skip(CI)` — expect **16 passed, 1 skipped** on GitHub Actions.
+**CI note:** Registration smoke uses `test.skip(isCiEnv)` — expect **16 passed, 1 skipped** on GitHub Actions.
 
 | Suite | Spec | Tests | Status |
 |-------|------|-------|--------|
@@ -23,9 +23,16 @@
 
 **Reports:** `PrismStructure/reports/html-report/index.html`  
 **JSON:** `PrismStructure/reports/test-results/results.json`  
-**Screenshot:** `execution-evidence/html-report-passing.png` (capture after local green run)
+**Screenshot:** `execution-evidence/html-report-passing.png`
 
 _Open HTML report:_ `npx playwright show-report reports/html-report` (from `PrismStructure/`)
+
+## CI status
+
+| Run | Branch | Result | Notes |
+|-----|--------|--------|-------|
+| [31332497871](https://github.com/sdet-deepti/qa-ai-practical-assessment/actions/runs/31332497871) | PR #15 | **pass** | 16 passed, 1 skipped |
+| [31332596512](https://github.com/sdet-deepti/qa-ai-practical-assessment/actions/runs/31332596512) | master (post-merge) | **fail** | Profile nav-menu flake; fixed in phase-15 |
 
 ## Improvement coverage (review follow-up)
 

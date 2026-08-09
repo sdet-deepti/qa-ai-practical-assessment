@@ -6,8 +6,10 @@ const AUTH_TOKEN_KEY = 'auth-token';
 
 /**
  * Establish UI session via API token (avoids extra POST /users/login on shared runners).
+ * @param {{ waitForNav?: boolean }} options — skip nav-menu wait when opening profile directly on CI
  */
-export async function authenticateBrowser(page, request) {
+export async function authenticateBrowser(page, request, options = {}) {
+  const { waitForNav = true } = options;
   const authApi = new AuthApi(request);
   const { email, password } = testConfig.credentials;
   const token = await authApi.login(email, password);
@@ -18,6 +20,8 @@ export async function authenticateBrowser(page, request) {
     [AUTH_TOKEN_KEY, token],
   );
   await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+
+  if (!waitForNav) return;
 
   const navMenu = page.locator('[data-test="nav-menu"]');
   const readyTimeout = isCiEnv ? 45000 : 20000;

@@ -43,7 +43,7 @@ test.describe('Authentication & User Lifecycle Suite', () => {
   test('[@smoke] Profile page shows configured user name after login', async ({ page, request }) => {
     const { email, password } = testConfig.credentials;
     if (isCiEnv) {
-      await authenticateBrowser(page, request);
+      await authenticateBrowser(page, request, { waitForNav: false });
       await openProfilePage(page);
     } else {
       await loginPage.navigate();

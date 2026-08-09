@@ -47,6 +47,15 @@ Prompts for README, project-info, execution evidence, and submission packaging.
 
 ---
 
+## Entry 5 — Review improvement evidence refresh (P6)
+
+- **Prompt:** After review-improvement plan, sync project-info counts, capture HTML report screenshot, and document CI vs local skip counts.
+- **AI Response Summary:** Update summary markdown only.
+- **Edits You Made:** `execution-evidence/execution-summary.md` (17-test table, CI run links), `execution-evidence/html-report-passing.png` via `scripts/capture-report-screenshot.js`, `project-info.md` automation/traceability tables (20 manual rows, 17 automated tests).
+- **Reason for Edits:** P6 definition of done; evaluators need aligned dates, screenshot, and traceability after profile/logout/API depth work.
+
+---
+
 
 
 ## Submission map (repo vs GDoc)
