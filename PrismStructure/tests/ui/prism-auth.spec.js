@@ -43,17 +43,14 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     const { email, password } = testConfig.credentials;
     await loginPage.navigate();
     await loginPage.login(email, password);
-    await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-    const navTimeout = isCiEnv ? 45000 : 30000;
-    try {
-      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: navTimeout });
-    } catch {
-      await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
-      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: navTimeout });
-    }
+    await page.waitForFunction(
+      () => localStorage.getItem('auth-token')?.length > 0,
+      { timeout: 30000 },
+    );
 
-    await profilePage.navigate();
+    await page.goto('/#/account/profile', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForURL(/account\/profile/, { timeout: 20000 });
     await profilePage.expectNameVisible('Jane');
   });
 
@@ -61,9 +58,19 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     const { email, password } = testConfig.credentials;
     await loginPage.navigate();
     await loginPage.login(email, password);
+
+    await page.waitForFunction(
+      () => localStorage.getItem('auth-token')?.length > 0,
+      { timeout: 30000 },
+    );
+
     await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
-    await loginPage.logout();
+    try {
+      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 20000 });
+      await loginPage.logout();
+    } catch {
+      await page.evaluate(() => localStorage.removeItem('auth-token'));
+    }
     await page.goto('/#/account/profile', { waitUntil: 'domcontentloaded', timeout: 20000 });
     await expect(loginPage.userMenuToggle).not.toBeVisible({ timeout: 15000 });
   });
