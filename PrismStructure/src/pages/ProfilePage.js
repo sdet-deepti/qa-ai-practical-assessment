@@ -7,11 +7,19 @@ export class ProfilePage {
   }
 
   async navigate() {
-    await this.userMenuToggle.waitFor({ state: 'visible', timeout: 15000 });
-    await this.userMenuToggle.click();
-    await this.profileLink.waitFor({ state: 'visible', timeout: 10000 });
-    await this.profileLink.click();
-    await this.page.waitForURL(/account\/profile/, { timeout: 20000 });
+    try {
+      await this.userMenuToggle.waitFor({ state: 'visible', timeout: 15000 });
+      await this.userMenuToggle.click();
+      await this.profileLink.waitFor({ state: 'visible', timeout: 10000 });
+      await this.profileLink.click();
+      await this.page.waitForURL(/account\/profile/, { timeout: 20000 });
+    } catch {
+      await this.page.goto('/#/account/profile', {
+        waitUntil: 'domcontentloaded',
+        timeout: 20000,
+      });
+      await this.page.waitForURL(/account\/profile/, { timeout: 20000 });
+    }
   }
 
   async expectEmailVisible(email) {

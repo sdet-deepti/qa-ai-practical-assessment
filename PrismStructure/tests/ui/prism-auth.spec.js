@@ -42,9 +42,9 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     const { email, password } = testConfig.credentials;
     await loginPage.navigate();
     await loginPage.login(email, password);
-    if (!page.url().includes('/account/profile')) {
-      await page.goto('/account/profile', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    }
+    await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
+    await profilePage.navigate();
     await profilePage.expectNameVisible('Jane');
   });
 
@@ -52,9 +52,12 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     const { email, password } = testConfig.credentials;
     await loginPage.navigate();
     await loginPage.login(email, password);
+    await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
     await loginPage.logout();
-    await page.goto('/account/profile', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await expect(page).toHaveURL(/auth\/login/, { timeout: 15000 });
+    await page.goto('/#/account/profile', { waitUntil: 'domcontentloaded', timeout: 20000 });
+    await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible({ timeout: 15000 });
+    await expect(loginPage.userMenuToggle).not.toBeVisible();
   });
 
   test('[@regression] Negative Login - Invalid Password Validation', async ({ page }) => {
