@@ -6,7 +6,6 @@ import { LoginPage } from '../../src/pages/LoginPage';
 import { ProfilePage } from '../../src/pages/ProfilePage';
 import { TestDataFactory } from '../../src/utils/TestDataFactory';
 import { testConfig } from '../../config/testConfig.js';
-import { injectBrowserAuthToken, authenticateBrowser, openProfilePage } from '../../src/utils/browserAuth.js';
 import { isCiEnv } from '../../src/utils/ciEnv.js';
 
 test.describe('Authentication & User Lifecycle Suite', () => {
@@ -40,31 +39,30 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     await expect(userNavMenu).toContainText(newUser.first_name, { timeout: 15000 });
   });
 
-  test('[@smoke] Profile page shows configured user name after login', async ({ page, request }) => {
+  test('[@smoke] Profile page shows configured user name after login', async ({ page }) => {
     const { email, password } = testConfig.credentials;
-    if (isCiEnv) {
-      await injectBrowserAuthToken(page, request);
-      await openProfilePage(page);
-    } else {
-      await loginPage.navigate();
-      await loginPage.login(email, password);
-      await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
-      await profilePage.navigate();
+    await loginPage.navigate();
+    await loginPage.login(email, password);
+    await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+    const navTimeout = isCiEnv ? 45000 : 30000;
+    try {
+      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: navTimeout });
+    } catch {
+      await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: navTimeout });
     }
+
+    await profilePage.navigate();
     await profilePage.expectNameVisible('Jane');
   });
 
-  test('[@regression] Logout clears session and blocks profile access', async ({ page, request }) => {
+  test('[@regression] Logout clears session and blocks profile access', async ({ page }) => {
     const { email, password } = testConfig.credentials;
-    if (isCiEnv) {
-      await authenticateBrowser(page, request);
-    } else {
-      await loginPage.navigate();
-      await loginPage.login(email, password);
-      await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
-    }
+    await loginPage.navigate();
+    await loginPage.login(email, password);
+    await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
     await loginPage.logout();
     await page.goto('/#/account/profile', { waitUntil: 'domcontentloaded', timeout: 20000 });
     await expect(loginPage.userMenuToggle).not.toBeVisible({ timeout: 15000 });
