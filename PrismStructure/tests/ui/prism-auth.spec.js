@@ -38,11 +38,13 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     await expect(userNavMenu).toContainText(newUser.first_name, { timeout: 15000 });
   });
 
-  test('[@smoke] Profile page shows configured user name after login', async () => {
+  test('[@smoke] Profile page shows configured user name after login', async ({ page }) => {
     const { email, password } = testConfig.credentials;
     await loginPage.navigate();
     await loginPage.login(email, password);
-    await profilePage.navigate();
+    if (!page.url().includes('/account/profile')) {
+      await page.goto('/account/profile', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    }
     await profilePage.expectNameVisible('Jane');
   });
 

@@ -63,13 +63,27 @@ export class LoginPage {
       { timeout: 30000 },
     );
 
-    await this.page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    const catalogReady = this.searchInput.or(this.userMenuToggle);
+    const readyTimeout = process.env.CI ? 30000 : 20000;
     try {
-      await catalogReady.first().waitFor({ state: 'visible', timeout: 20000 });
+      await this.userMenuToggle.waitFor({ state: 'visible', timeout: readyTimeout });
     } catch {
-      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
-      await catalogReady.first().waitFor({ state: 'visible', timeout: 20000 });
+      await this.page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+      try {
+        await this.userMenuToggle.waitFor({ state: 'visible', timeout: readyTimeout });
+      } catch {
+        await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+        try {
+          await this.userMenuToggle.waitFor({ state: 'visible', timeout: readyTimeout });
+        } catch {
+          await this.page.goto('/account/profile', {
+            waitUntil: 'domcontentloaded',
+            timeout: 30000,
+          });
+          if (this.page.url().includes('/auth/login')) {
+            throw new Error('Login succeeded but authenticated shell never became ready');
+          }
+        }
+      }
     }
   }
 

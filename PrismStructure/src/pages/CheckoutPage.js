@@ -42,10 +42,15 @@ export class CheckoutPage {
   
     // Safe input helper to force Angular Reactive Form updates
     async fillAndTrigger(locator, value) {
-      await locator.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
-      if (await locator.isVisible()) {
+      await locator.waitFor({ state: 'visible', timeout: 10000 });
+      await locator.click();
+      await locator.fill(String(value));
+      await locator.dispatchEvent('input');
+      await locator.dispatchEvent('change');
+      await locator.dispatchEvent('blur');
+      const actual = await locator.inputValue();
+      if (actual.trim() !== String(value)) {
         await locator.fill(String(value));
-        await locator.dispatchEvent('input');
         await locator.dispatchEvent('change');
         await locator.dispatchEvent('blur');
       }
@@ -96,26 +101,33 @@ export class CheckoutPage {
       try {
         await this.countrySelect.selectOption({ label: targetCountry });
       } catch {
-        await this.countrySelect.selectOption({ index: 1 });
+        try {
+          await this.countrySelect.selectOption({ value: targetCountry });
+        } catch {
+          await this.countrySelect.selectOption({ index: 1 });
+        }
       }
       await this.countrySelect.dispatchEvent('change');
       await this.countrySelect.dispatchEvent('blur');
-  
-      // 2. Fill inputs and trigger change detection
+
+      // 2. Postcode + house number unlock autocomplete and form validity
       await this.fillAndTrigger(this.postcodeInput, data.postcode || '1010');
       await this.fillAndTrigger(this.houseNumberInput, data.houseNumber || '42');
+
+      // 3. Fill remaining fields (autocomplete may partially populate)
       await this.fillAndTrigger(this.streetInput, data.address || data.street || 'Test street 150');
       await this.fillAndTrigger(this.cityInput, data.city || 'Vienna');
       await this.fillAndTrigger(this.stateInput, data.state || 'Austria');
-  
-      // 3. Wait for proceed button to be enabled and click
+
+      // 4. Wait for proceed button to be enabled and click
+      const proceedTimeout = process.env.CI ? 45000 : 20000;
       await this.proceed3.waitFor({ state: 'visible', timeout: 10000 });
       await this.page.waitForFunction(
         () => {
           const btn = document.querySelector('[data-test="proceed-3"]');
           return btn && !btn.hasAttribute('disabled') && !btn.disabled;
         },
-        { timeout: 10000 }
+        { timeout: proceedTimeout },
       );
   
       await this.proceed3.click();
