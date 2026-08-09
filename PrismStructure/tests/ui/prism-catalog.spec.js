@@ -23,5 +23,8 @@ test.describe('Catalog & Cart UI Suite', () => {
     await catalogPage.setQuantityAndAddToCart(cartQuantity);
     await catalogPage.goToCart();
     await expect(page).toHaveURL(/cart|checkout/i);
+
+    const quantityField = page.locator('[data-test="product-quantity"], [data-test="quantity"], input[type="number"]').first();
+    await expect(quantityField).toHaveValue(String(cartQuantity), { timeout: 10000 });
   });
 });

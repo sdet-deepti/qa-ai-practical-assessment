@@ -19,6 +19,8 @@ git-github-flow.md
 test-prompts
 test-prompts/
 PrismStructure/scripts/probe-*.js
+PrismStructure/.auth-token
+.auth-token
 
 # Extra prompt logs (5 required files in ai-prompts/ are committed)
 ai-prompts/Checkpoint*.md

@@ -3,16 +3,10 @@ export class InvoicePage {
       this.page = page;
   
       // User account menu toggle in top nav ("Jane Doe")
-      this.userMenuToggle = page.locator('[data-test="nav-menu"]')
-        .or(page.locator('#menu'))
-        .or(page.getByRole('button', { name: /jane doe/i }))
-        .or(page.locator('.dropdown-toggle'));
+      this.userMenuToggle = page.locator('[data-test="nav-menu"]');
   
       // "My Invoices" link in dropdown
-      this.myInvoicesNav = page.locator('[data-test="nav-my-invoices"]')
-        .or(page.getByRole('link', { name: /my invoices/i }))
-        .or(page.getByRole('menuitem', { name: /invoices/i }))
-        .or(page.getByText('My Invoices'));
+      this.myInvoicesNav = page.getByRole('link', { name: 'My invoices' });
   
       // Invoices list container / table / rows
       this.invoiceTable = page.locator('table')
@@ -28,25 +22,19 @@ export class InvoicePage {
         .or(page.locator('.badge'))
         .or(page.getByText(/paid|pending|completed/i))
         .first();
+
+      this.invoiceNumberCell = page
+        .locator('[data-test="invoice-number"]')
+        .or(page.locator('tbody tr td').first())
+        .first();
     }
   
     async navigateToMyInvoices() {
-      await this.page.waitForTimeout(1500);
-  
-      if (await this.userMenuToggle.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await this.userMenuToggle.click();
-        await this.page.waitForTimeout(500);
-  
-        if (await this.myInvoicesNav.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await this.myInvoicesNav.click();
-          await this.page.waitForLoadState('networkidle').catch(() => {});
-          return;
-        }
-      }
-  
-      // Fallback navigation
-      await this.page.goto('/#/account/invoices');
-      await this.page.waitForLoadState('networkidle').catch(() => {});
+      await this.userMenuToggle.waitFor({ state: 'visible', timeout: 15000 });
+      await this.userMenuToggle.click();
+      await this.myInvoicesNav.waitFor({ state: 'visible', timeout: 10000 });
+      await this.myInvoicesNav.click();
+      await this.page.waitForURL(/account\/invoices/, { timeout: 20000 });
     }
   
     async verifyLatestInvoice() {
@@ -54,10 +42,20 @@ export class InvoicePage {
         state: 'visible',
         timeout: 10000
       });
-  
+
       const hasInvoices = await this.invoiceRows.count();
       if (hasInvoices === 0) {
         await this.page.locator('tbody tr, .card, [data-test="invoice-number"]').first().waitFor({ state: 'visible', timeout: 5000 });
       }
+    }
+
+    async getLatestInvoiceNumberText() {
+      await this.verifyLatestInvoice();
+      const pageText = await this.page.locator('main, .containerApp, .container, body').first().innerText();
+      const match = pageText.match(/INV-\d+/i);
+      if (!match) {
+        throw new Error('Invoice number pattern INV-* not found on My Invoices page');
+      }
+      return match[0];
     }
   }

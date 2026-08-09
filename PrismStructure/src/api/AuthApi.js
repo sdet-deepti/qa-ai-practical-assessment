@@ -34,6 +34,33 @@ export class AuthApi {
     return { status: response.status(), body };
   }
 
+  async getCurrentUser(token) {
+    const response = await this.request.get(`${this.baseUrl}/users/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok()) {
+      throw new Error(`Get current user failed: ${response.status()}`);
+    }
+
+    return await response.json();
+  }
+
+  async getCurrentUserWithResponse(token) {
+    const response = await this.request.get(`${this.baseUrl}/users/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    let body = null;
+    try {
+      body = await response.json();
+    } catch {
+      body = null;
+    }
+
+    return { status: response.status(), body };
+  }
+
   async register(userData) {
     const response = await this.request.post(`${this.baseUrl}/users/register`, {
       data: userData,

@@ -4,9 +4,10 @@ export default defineConfig({
   testDir: './tests',
   timeout: process.env.CI ? 90 * 1000 : 60 * 1000,
   expect: { timeout: process.env.CI ? 20000 : 10000 },
-  fullyParallel: !process.env.CI,
+  // Live SUT: one worker, no cross-file parallel — avoids login rate limits on shared Jane Doe account
+  fullyParallel: false,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : 2,
+  workers: 1,
   outputDir: './reports/test-results',
   reporter: [
     ['list'],

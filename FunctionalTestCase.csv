@@ -5,9 +5,17 @@ TC_UI_003,UI,Authentication,Invalid password login attempt,Negative,High,"1. Nav
 TC_UI_004,UI,Catalog,Search product and add item to cart,Positive,High,"1. Login; 2. Search catalog for an in-stock product; 3. Set quantity; 4. Add to cart",Product appears in cart with selected quantity,@Smoke
 TC_UI_005,UI,Checkout,COD checkout with double-confirm invoice generation,Positive,Critical,"1. Login; 2. Add product to cart; 3. Proceed checkout steps; 4. Select Cash on Delivery; 5. Press Confirm twice on summary",Invoice ID is generated successfully,@Regression
 TC_UI_006,UI,Invoice,Verify latest invoice under My Invoices,Positive,High,"1. Complete COD checkout; 2. Open user menu; 3. Navigate to My Invoices",Latest invoice is listed with valid status,@Regression
+TC_UI_007,UI,Profile,Verify profile page shows registered name and email,Positive,High,"1. Login with valid user; 2. Open account/profile; 3. Review profile fields",Profile displays correct first name and email,@Smoke
+TC_UI_008,UI,Authentication,Logout clears session and returns to login,Positive,High,"1. Login; 2. Open user menu; 3. Click Logout",User is redirected to login; protected pages require login again,@Regression
+TC_UI_009,UI,Invoice,Verify invoice number format on My Invoices,Positive,High,"1. Complete COD checkout; 2. Open My Invoices; 3. Inspect latest invoice number",Invoice number matches INV-YYYYXXXXXXX pattern,@Regression
+TC_UI_010,UI,Registration,Password below minimum length rejected,Negative,Medium,"1. Open Register; 2. Enter password shorter than minimum; 3. Submit",Validation error shown; registration blocked,@Regression
+TC_UI_011,UI,Registration,Password without required complexity rejected,Negative,Medium,"1. Open Register; 2. Enter weak password (e.g. letters only); 3. Submit",Validation error shown; registration blocked,@Regression
+TC_UI_012,UI,Catalog,Quantity zero or invalid rejected on product detail,Negative,Medium,"1. Open in-stock product; 2. Set quantity to 0 or invalid; 3. Attempt add to cart",Add to cart blocked or validation shown,@Regression
 TC_API_001,API,Authentication,Login and obtain bearer token,Positive,High,"1. POST /users/login with valid credentials",Returns HTTP 200 and access_token in response,@Smoke
 TC_API_002,API,Authentication,Login with invalid credentials,Negative,High,"1. POST /users/login with invalid password",Returns HTTP 401 Unauthorized,@Smoke
 TC_API_003,API,Cart,Create new cart session,Positive,High,"1. POST /carts",Returns HTTP 201 with valid cart id,@Smoke
 TC_API_004,API,Cart,Add product item to cart,Positive,High,"1. Create cart; 2. POST /carts/{id}/items with product_id and quantity",Returns HTTP 201 and item is added to cart,@Smoke
 TC_API_005,API,Invoice,Generate COD invoice with billing payload,Positive,Critical,"1. Login; 2. Create cart; 3. Add item; 4. POST /invoices with COD payload and billing fields",Returns HTTP 201 with invoice id and payment_method cash-on-delivery,@Regression
-TC_API_006,API,Invoice,Invoice request with missing cart_id,Negative,High,"1. Login; 2. POST /invoices without cart_id in payload",Returns HTTP 400 Bad Request,@Regression
+TC_API_006,API,Invoice,Invoice request with missing cart_id,Negative,High,"1. Login; 2. POST /invoices without cart_id in payload",Returns HTTP 422 validation error,@Regression
+TC_API_007,API,Authentication,Invalid bearer token rejected on protected route,Negative,High,"1. GET /users/me with invalid or expired token",Returns HTTP 401 Unauthorized,@Regression
+TC_API_008,API,Cart,GET cart returns cart_items array and id,Positive,High,"1. Login; 2. POST /carts; 3. GET /carts/{id}",Returns 200 with cart id and cart_items array (may be empty on live API),@Smoke
