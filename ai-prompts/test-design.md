@@ -37,10 +37,18 @@ Prompts for manual test cases and automated spec design (UI + API).
 
 ---
 
+## Entry 5 — Review gap manual + automation expansion
+
+- **Prompt:** Add manual cases for profile, logout, invoice format, password boundaries; deepen API/UI assertions per review.
+- **AI Response Summary:** 8 new CSV rows (TC_UI_007–012, TC_API_007–008); 17 automated tests (9 API + 8 UI).
+- **Validation Notes:** See `review-improvement-plan.md`; env matrix in `docs/environment-and-data-strategy.md`.
+
+---
+
 ## Coverage Summary (implemented)
 
 | Tier | Spec files | Tests | Tags |
 |------|------------|-------|------|
-| UI | 4 | 6 | @smoke / @regression |
-| API | 1 | 6 | @smoke / @regression |
-| Manual CSV | — | 12 rows | @Smoke / @Regression |
+| UI | 4 | 8 | @smoke / @regression |
+| API | 1 | 9 | @smoke / @regression |
+| Manual CSV | — | 20 rows | @Smoke / @Regression |

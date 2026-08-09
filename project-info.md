@@ -10,7 +10,7 @@
 
 ## Project Summary
 
-End-to-end QA automation for Toolshop covering **AC1** (user registration, login, profile verification) and **AC2** (catalog search, cart quantity, Cash on Delivery checkout with **double-confirm invoice generation**, My Invoices verification). The API tier validates bearer-token login, cart creation, cart retrieval, COD invoice generation with billing payload, and negative paths (401 login, 422 invalid invoice). All **12 automated tests pass** on Chromium.
+End-to-end QA automation for Toolshop covering **AC1** (registration, login, **profile**, **logout**) and **AC2** (catalog, cart quantity, COD checkout with **double-confirm**, My Invoices with **invoice number format**). The API tier validates bearer-token login, **`GET /users/me`**, cart lifecycle, COD invoice with **`invoice_number`**, invalid token 401, add-item 404 (documented), and 422 missing `cart_id`. **17 automated tests pass** locally on Chromium (16 on CI with registration skipped).
 
 ---
 

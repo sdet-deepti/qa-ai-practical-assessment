@@ -125,9 +125,18 @@ Prompts for POM construction, spec fixes, and failure analysis.
 
 ---
 
+## Entry 16 — Review improvements (profile, logout, invoice depth)
+
+- **Prompt:** Add profile page, logout, invoice INV pattern, cart quantity assertions; API token 401 and add-item 404 probe.
+- **AI Response Summary:** `ProfilePage`, `LoginPage.logout()` (Sign out), `InvoicePage` nav fix; API `getCurrentUser`, invalid token test.
+- **Debugging Outcome:** Sign out redirects to home not login; profile asserts Jane Doe on `/account/profile`; invoices via `My invoices` link; 17/17 local pass.
+
+---
+
 ## Final execution status
 
 - **Command:** `npx playwright test --project=chromium` from `PrismStructure/`
 - **Local result:** 12 passed, 0 failed (registration smoke included)
 - **CI result:** 11 passed, 1 skipped (registration), 0 failed — after login stability fixes
+- **Review follow-up (Aug 9):** 17 passed local; 9 API + 8 UI tests — profile, logout, invoice format, cart qty, token 401
 - **Report:** `PrismStructure/reports/html-report/index.html`

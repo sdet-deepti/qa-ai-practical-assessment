@@ -138,6 +138,8 @@ flowchart LR
 
 ## Configuration & Test Data
 
+Full **environment and data lifecycle matrix:** [`docs/environment-and-data-strategy.md`](docs/environment-and-data-strategy.md)
+
 ### Where data comes from
 
 | Data type | Source | Used for |

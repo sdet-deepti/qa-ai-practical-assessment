@@ -30,6 +30,9 @@ test.describe('Prism UI End-to-End Automation Suite (Dynamic Data)', () => {
     await invoicePage.navigateToMyInvoices();
     await invoicePage.verifyLatestInvoice();
 
+    const invoiceNumber = await invoicePage.getLatestInvoiceNumberText();
+    expect(invoiceNumber).toMatch(/^INV-\d+/);
+
     await expect(invoicePage.invoiceStatusTag).toBeVisible();
   });
 });

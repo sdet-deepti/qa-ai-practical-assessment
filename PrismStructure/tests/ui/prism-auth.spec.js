@@ -3,15 +3,19 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from '../../src/pages/RegisterPage';
 import { LoginPage } from '../../src/pages/LoginPage';
+import { ProfilePage } from '../../src/pages/ProfilePage';
 import { TestDataFactory } from '../../src/utils/TestDataFactory';
+import { testConfig } from '../../config/testConfig.js';
 
 test.describe('Authentication & User Lifecycle Suite', () => {
   let registerPage;
   let loginPage;
+  let profilePage;
 
   test.beforeEach(async ({ page }) => {
     registerPage = new RegisterPage(page);
     loginPage = new LoginPage(page);
+    profilePage = new ProfilePage(page);
   });
 
   test('[@smoke] User Registration & Subsequent Login Validation', async ({ page }) => {
@@ -22,18 +26,32 @@ test.describe('Authentication & User Lifecycle Suite', () => {
 
     const newUser = TestDataFactory.generateUserData();
 
-    // 1. Register
     await registerPage.navigate();
     await registerPage.registerUser(newUser);
     await expect(page).toHaveURL(/\/auth\/login/, { timeout: 10000 });
 
-    // 2. Login
     await loginPage.login(newUser.email, newUser.password);
 
-    // 3. Verify logged-in nav state (menu shows user name after session is established)
     const userNavMenu = page.locator('[data-test="nav-menu"]');
     await expect(userNavMenu).toBeVisible({ timeout: 20000 });
     await expect(userNavMenu).toContainText(newUser.first_name, { timeout: 15000 });
+  });
+
+  test('[@smoke] Profile page shows configured user name after login', async () => {
+    const { email, password } = testConfig.credentials;
+    await loginPage.navigate();
+    await loginPage.login(email, password);
+    await profilePage.navigate();
+    await profilePage.expectNameVisible('Jane');
+  });
+
+  test('[@regression] Logout clears session and blocks profile access', async ({ page }) => {
+    const { email, password } = testConfig.credentials;
+    await loginPage.navigate();
+    await loginPage.login(email, password);
+    await loginPage.logout();
+    await page.goto('/account/profile', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await expect(page).toHaveURL(/auth\/login/, { timeout: 15000 });
   });
 
   test('[@regression] Negative Login - Invalid Password Validation', async ({ page }) => {

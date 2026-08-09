@@ -21,6 +21,14 @@ Record prompts used for Toolshop requirement analysis, AC extraction, and risk m
 
 ---
 
+## Entry 3 — Profile, logout, and invoice number format
+
+- **Prompt:** Extend AC1/AC2 for profile page verification, logout/session end, and invoice number format on UI and API.
+- **AI Response Summary:** AC1b profile name/email; AC1c logout; AC2b invoice `INV-` + digits (live sample `INV-2026000005`).
+- **Validation Notes:** Manual TC_UI_007–012, TC_API_007–008; `GET /users/me` for session; `POST /users/logout` returns 405 — UI logout + invalid-token 401 test.
+
+---
+
 ## Risk Mitigation Matrix (as implemented)
 
 | Risk | Mitigation in code |
@@ -32,6 +40,9 @@ Record prompts used for Toolshop requirement analysis, AC extraction, and risk m
 | Angular billing form | `fillAndTrigger()` + country selected first in `CheckoutPage` |
 | API billing validation | TG/Hesselbury payload in `InvoiceApi` / `TestDataFactory` |
 | Parallel test flake | `workers: 2` in `playwright.config.js` |
+| No API logout endpoint | UI logout test; API uses invalid-token 401 on `/users/me` |
+| Invoice number drift | Assert `/^INV-\d+$/` on UI and API `invoice_number` |
+| Add-item API 404 | Document in manual TC_API_004; API regression asserts 404 |
 
 ---
 
