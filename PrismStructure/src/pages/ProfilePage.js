@@ -1,3 +1,6 @@
+import { testConfig } from '../../config/testConfig.js';
+import { isCiEnv } from '../../src/utils/ciEnv.js';
+
 export class ProfilePage {
   constructor(page) {
     this.page = page;
@@ -31,9 +34,22 @@ export class ProfilePage {
   }
 
   async expectNameVisible(name) {
+    const timeout = isCiEnv ? 30000 : 15000;
+    const firstNameInput = this.page
+      .locator('#first_name, [data-test="first-name"], input[formcontrolname="first_name"]')
+      .first();
+
+    try {
+      await firstNameInput.waitFor({ state: 'visible', timeout });
+      const value = await firstNameInput.inputValue();
+      if (value.includes(name)) return;
+    } catch {
+      // ponytail: fall back to visible text if form field not populated on slow runners
+    }
+
     await this.page.getByText(name, { exact: false }).first().waitFor({
       state: 'visible',
-      timeout: 15000,
+      timeout,
     });
   }
 }

@@ -1,14 +1,22 @@
 import { AuthApi } from '../api/AuthApi.js';
 import { testConfig } from '../../config/testConfig.js';
 import { isCiEnv } from './ciEnv.js';
+import { readCachedAuthToken } from './authTokenCache.js';
 
 const AUTH_TOKEN_KEY = 'auth-token';
 
-/** API login + localStorage token only (no nav-menu wait). */
-export async function injectBrowserAuthToken(page, request) {
+async function resolveAuthToken(request) {
+  const cached = readCachedAuthToken();
+  if (cached) return cached;
+
   const authApi = new AuthApi(request);
   const { email, password } = testConfig.credentials;
-  const token = await authApi.login(email, password);
+  return authApi.login(email, password);
+}
+
+/** API login + localStorage token only (no nav-menu wait). */
+export async function injectBrowserAuthToken(page, request) {
+  const token = await resolveAuthToken(request);
 
   await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.evaluate(
@@ -35,10 +43,27 @@ export async function authenticateBrowser(page, request) {
   await waitForAuthenticatedNav(page);
 }
 
+async function waitForCurrentUser(page) {
+  await page.waitForResponse(
+    (r) =>
+      r.url().includes('/users/me') &&
+      r.request().method() === 'GET' &&
+      r.status() === 200,
+    { timeout: 30000 },
+  );
+}
+
 export async function openProfilePage(page) {
+  const mePromise = waitForCurrentUser(page);
   await page.goto('/#/account/profile', {
     waitUntil: 'domcontentloaded',
     timeout: 30000,
   });
   await page.waitForURL(/account\/profile/, { timeout: 20000 });
+  try {
+    await mePromise;
+  } catch {
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+    await waitForCurrentUser(page);
+  }
 }
