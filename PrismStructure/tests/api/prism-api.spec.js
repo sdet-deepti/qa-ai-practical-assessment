@@ -3,7 +3,6 @@ import { AuthApi } from '../../src/api/AuthApi';
 import { CartApi } from '../../src/api/CartApi';
 import { InvoiceApi } from '../../src/api/InvoiceApi';
 import { TestDataFactory } from '../../src/utils/TestDataFactory';
-import { readCachedAuthToken } from '../../src/utils/authTokenCache.js';
 
 import { testConfig } from '../../config/testConfig.js';
 
@@ -14,12 +13,9 @@ test.describe('Prism API Automation Tier', () => {
   let bearerToken;
 
   test.beforeAll(async ({ request }) => {
-    bearerToken = readCachedAuthToken();
-    if (!bearerToken) {
-      const api = new AuthApi(request);
-      const { email, password } = testConfig.credentials;
-      bearerToken = await api.login(email, password);
-    }
+    const api = new AuthApi(request);
+    const { email, password } = testConfig.credentials;
+    bearerToken = await api.login(email, password);
   });
 
   test.beforeEach(async ({ request }) => {

@@ -8,7 +8,6 @@ export default defineConfig({
   fullyParallel: false,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  globalSetup: './global-setup.js',
   outputDir: './reports/test-results',
   reporter: [
     ['list'],

@@ -6,6 +6,7 @@ import { LoginPage } from '../../src/pages/LoginPage';
 import { ProfilePage } from '../../src/pages/ProfilePage';
 import { TestDataFactory } from '../../src/utils/TestDataFactory';
 import { testConfig } from '../../config/testConfig.js';
+import { authenticateBrowser, openProfilePage } from '../../src/utils/browserAuth.js';
 import { isCiEnv } from '../../src/utils/ciEnv.js';
 
 test.describe('Authentication & User Lifecycle Suite', () => {
@@ -39,38 +40,32 @@ test.describe('Authentication & User Lifecycle Suite', () => {
     await expect(userNavMenu).toContainText(newUser.first_name, { timeout: 15000 });
   });
 
-  test('[@smoke] Profile page shows configured user name after login', async ({ page }) => {
+  test('[@smoke] Profile page shows configured user name after login', async ({ page, request }) => {
     const { email, password } = testConfig.credentials;
-    await loginPage.navigate();
-    await loginPage.login(email, password);
-
-    await page.waitForFunction(
-      () => localStorage.getItem('auth-token')?.length > 0,
-      { timeout: 30000 },
-    );
-
-    await page.goto('/#/account/profile', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForURL(/account\/profile/, { timeout: 20000 });
+    if (isCiEnv) {
+      await authenticateBrowser(page, request);
+      await openProfilePage(page);
+    } else {
+      await loginPage.navigate();
+      await loginPage.login(email, password);
+      await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
+      await profilePage.navigate();
+    }
     await profilePage.expectNameVisible('Jane');
   });
 
-  test('[@regression] Logout clears session and blocks profile access', async ({ page }) => {
+  test('[@regression] Logout clears session and blocks profile access', async ({ page, request }) => {
     const { email, password } = testConfig.credentials;
-    await loginPage.navigate();
-    await loginPage.login(email, password);
-
-    await page.waitForFunction(
-      () => localStorage.getItem('auth-token')?.length > 0,
-      { timeout: 30000 },
-    );
-
-    await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    try {
-      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 20000 });
-      await loginPage.logout();
-    } catch {
-      await page.evaluate(() => localStorage.removeItem('auth-token'));
+    if (isCiEnv) {
+      await authenticateBrowser(page, request);
+    } else {
+      await loginPage.navigate();
+      await loginPage.login(email, password);
+      await page.goto('/#/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await loginPage.userMenuToggle.waitFor({ state: 'visible', timeout: 30000 });
     }
+    await loginPage.logout();
     await page.goto('/#/account/profile', { waitUntil: 'domcontentloaded', timeout: 20000 });
     await expect(loginPage.userMenuToggle).not.toBeVisible({ timeout: 15000 });
   });
