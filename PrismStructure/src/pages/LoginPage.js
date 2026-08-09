@@ -37,20 +37,29 @@ export class LoginPage {
       return;
     }
 
-    const responsePromise = this.page.waitForResponse(
-      (response) =>
-        response.url().includes('/users/login') &&
-        response.request().method() === 'POST',
-      { timeout: 30000 },
-    );
-    await this.submitButton.click();
+    const submitLogin = async () => {
+      const [loginResponse] = await Promise.all([
+        this.page.waitForResponse(
+          (response) =>
+            response.url().includes('/users/login') &&
+            response.request().method() === 'POST',
+          { timeout: 30000 },
+        ),
+        this.submitButton.click(),
+      ]);
+      return loginResponse;
+    };
 
     let loginResponse;
     try {
-      loginResponse = await responsePromise;
+      loginResponse = await submitLogin();
     } catch {
-      if (this.page.url().includes('/auth/login')) {
-        throw new Error('Login timed out: no API response and still on login page');
+      if (!this.page.url().includes('/auth/login')) {
+        loginResponse = null;
+      } else {
+        await this.emailInput.fill(email);
+        await this.passwordInput.fill(password);
+        loginResponse = await submitLogin();
       }
     }
 
